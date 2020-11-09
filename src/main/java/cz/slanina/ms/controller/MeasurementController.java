@@ -1,7 +1,7 @@
-package cz.slanina.ts.controller;
+package cz.slanina.ms.controller;
 
-import cz.slanina.ts.model.Measurement;
-import cz.slanina.ts.repository.MeasurementsRepository;
+import cz.slanina.ms.model.Measurement;
+import cz.slanina.ms.repository.MeasurementsRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;

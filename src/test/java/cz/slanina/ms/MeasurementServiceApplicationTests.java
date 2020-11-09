@@ -1,4 +1,4 @@
-package cz.slanina.ts;
+package cz.slanina.ms;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;

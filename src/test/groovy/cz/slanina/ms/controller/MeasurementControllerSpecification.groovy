@@ -1,6 +1,6 @@
-package cz.slanina.ts.controller
+package cz.slanina.ms.controller
 
-import cz.slanina.ts.repository.MeasurementsRepository
+import cz.slanina.ms.repository.MeasurementsRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration

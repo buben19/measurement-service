@@ -1,4 +1,4 @@
-package cz.slanina.ts.model;
+package cz.slanina.ms.model;
 
 import lombok.Data;
 

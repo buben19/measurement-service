@@ -1,11 +1,7 @@
-package cz.slanina.ts.repository;
+package cz.slanina.ms.repository;
 
-import cz.slanina.ts.model.Measurement;
+import cz.slanina.ms.model.Measurement;
 import org.springframework.data.repository.CrudRepository;
-import org.threeten.extra.Interval;
-
-import javax.annotation.Nonnull;
-import java.util.Optional;
 
 public interface MeasurementsRepository extends CrudRepository<Measurement, Long> {
 

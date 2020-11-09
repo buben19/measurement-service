@@ -1,4 +1,4 @@
-package cz.slanina.ts;
+package cz.slanina.ms;
 
 import io.github.mweirauch.micrometer.jvm.extras.ProcessMemoryMetrics;
 import io.github.mweirauch.micrometer.jvm.extras.ProcessThreadMetrics;
