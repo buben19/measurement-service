@@ -1,0 +1,80 @@
+FORMAT: 1A
+HOST: http://localhost:8081/
+
+# measurement-service
+
+Simple service allowing user to save temerature measurements and find 
+longest streak based on temperature tresholds.
+
+## Questions Collection [/measurements]
+
+### List all measurements [GET]
+
++ Response 200 (application/json)
+
+        {
+          "_embedded" : {
+            "measurements" : [ {
+              "id" : 1,
+              "temperature" : 1.0,
+              "timestamp" : "2019-12-31T22:00:00Z",
+              "_links" : {
+                "self" : {
+                  "href" : "http://localhost:8081/measurements/1"
+                },
+                "measurements" : {
+                  "href" : "http://localhost:8081/measurements"
+                }
+              }
+            }, {
+              "id" : 2,
+              "temperature" : 1.0,
+              "timestamp" : "2019-12-31T22:00:00Z",
+              "_links" : {
+                "self" : {
+                  "href" : "http://localhost:8081/measurements/2"
+                },
+                "measurements" : {
+                  "href" : "http://localhost:8081/measurements"
+                }
+              }
+            } ]
+          },
+          "_links" : {
+            "self" : {
+              "href" : "http://localhost:8081/measurements"
+            }
+          }
+        }
+        
+        
+
+### Create new measurement [POST]
+
+Send new measuremenmt o the server. It takes a JSON object containing a
+measuremenet object costisting of temeperature value and timestamp.
+
++ Request (application/json)
+
+        {
+            "measurement": 22.0,
+            "timestamp": "2020-01-01T00:00:00+02:00"
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /measurements/1
+
+    + Body
+    
+            {
+              "id" : 1,
+              "temperature" : 1.0,
+              "timestamp" : "2020-01-31T22:00:00Z",
+              "_links" : {
+                "self" : {
+                  "href" : "http://localhost:8081/measurements/1"
+                }
+            }
