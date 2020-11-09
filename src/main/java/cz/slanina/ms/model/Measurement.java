@@ -14,7 +14,7 @@ import java.time.OffsetDateTime;
  */
 @Data
 @Entity
-@Table(name = "temperature")
+@Table(name = "measurements")
 public class Measurement {
 
     @Id

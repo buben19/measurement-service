@@ -19,14 +19,15 @@ class MeasurementControllerSpecification extends Specification {
     MockMvc mvc
 
     @Autowired
-    MeasurementsRepository repository;
+    MeasurementsRepository repository
 
-    def "test"() {
+    def "get all measurements"() {
         expect:
         mvc.perform(MockMvcRequestBuilders.get("/measurements"))
                 .andExpect(status().isOk())
     }
 
+    @SuppressWarnings("unused")
     @TestConfiguration
     static class MockConfig {
         def detachedMockFactory = new DetachedMockFactory()
