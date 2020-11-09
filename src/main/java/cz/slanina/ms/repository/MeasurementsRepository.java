@@ -5,9 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import javax.annotation.Nonnull;
-import java.sql.Timestamp;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface MeasurementsRepository extends CrudRepository<Measurement, Long> {
@@ -15,7 +14,7 @@ public interface MeasurementsRepository extends CrudRepository<Measurement, Long
     @Nonnull
     @Query(value = "WITH" +
             " dates(date) AS (" +
-            "SELECT DISTINCT timestamp as date" +
+            "SELECT DISTINCT CAST(timestamp AS DATE) AS date" +
             " FROM measurements" +
             " WHERE temperature BETWEEN :min AND :max" +
             ")," +
@@ -43,16 +42,16 @@ public interface MeasurementsRepository extends CrudRepository<Measurement, Long
      */
     interface Streak {
 
-        Timestamp getStart();
+        Date getStart();
 
-        default OffsetDateTime getStartAsOffsetDateTime() {
-            return OffsetDateTime.ofInstant(this.getStart().toInstant(), ZoneId.of("UTC"));
+        default LocalDate getStartAsLocalDate() {
+            return this.getStart().toLocalDate();
         }
 
-        Timestamp getEnd();
+        Date getEnd();
 
-        default OffsetDateTime getEndAsOffsetDateTime() {
-            return OffsetDateTime.ofInstant(this.getEnd().toInstant(), ZoneId.of("UTC"));
+        default LocalDate getEndAsLocalDate() {
+            return this.getEnd().toLocalDate();
         }
     }
 }

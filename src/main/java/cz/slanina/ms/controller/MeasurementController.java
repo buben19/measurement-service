@@ -104,7 +104,7 @@ public class MeasurementController {
             return ResponseEntity.noContent().build();
         } else {
             MeasurementsRepository.Streak streak = intervals.get(0);
-            Streak resource = new Streak(streak.getStartAsOffsetDateTime(), streak.getEndAsOffsetDateTime());
+            Streak resource = new Streak(streak.getStartAsLocalDate(), streak.getEndAsLocalDate());
             return ResponseEntity.ok().body(resource);
         }
     }

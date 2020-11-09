@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -178,13 +179,13 @@ class MeasurementControllerSpecification extends Specification {
                 .param("max", "20"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath('$.start').value("2020-01-01T02:00:00Z"))
-                .andExpect(jsonPath('$.end').value("2020-01-01T03:00:00Z"))
+                .andExpect(jsonPath('$.start').value("2020-01-01"))
+                .andExpect(jsonPath('$.end').value("2020-01-01"))
 
         then:
         repository.findLongestInterval(10, 20) >> [streak]
-        streak.getStartAsOffsetDateTime() >> OffsetDateTime.of(2020, 1, 1, 2, 0, 0, 0, ZoneOffset.UTC)
-        streak.getEndAsOffsetDateTime() >> OffsetDateTime.of(2020, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
+        streak.getStartAsLocalDate() >> LocalDate.of(2020, 1, 1)
+        streak.getEndAsLocalDate() >> LocalDate.of(2020, 1, 1)
     }
 
     @SuppressWarnings("unused")

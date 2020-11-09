@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 @Data
@@ -11,6 +12,6 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class Streak {
 
-    OffsetDateTime start;
-    OffsetDateTime end;
+    LocalDate start;
+    LocalDate end;
 }
