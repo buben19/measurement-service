@@ -6,9 +6,11 @@ HOST: http://localhost:8081/
 Simple service allowing user to save temerature measurements and find 
 longest streak based on temperature tresholds.
 
-## Questions Collection [/measurements]
+## Measurements collection [/measurements]
 
 ### List all measurements [GET]
+
+Get all stored measurements.
 
 + Response 200 (application/json)
 
@@ -46,8 +48,6 @@ longest streak based on temperature tresholds.
             }
           }
         }
-        
-        
 
 ### Create new measurement [POST]
 
@@ -78,3 +78,25 @@ measuremenet object costisting of temeperature value and timestamp.
                   "href" : "http://localhost:8081/measurements/1"
                 }
             }
+
+## Single measurement [/measurements/{id}]
+
+### Get single measurement [GET]
+
+Get single measurement identified by *id*.
+
++ Response 200 (application/json)
+
+        {
+          "id": 1,
+          "temperature": 10.0,
+          "timestamp": "2020-01-01T01:00:00Z",
+          "_links": {
+            "self": {
+              "href":"http://localhost/measurements/1"
+            },
+            "measurements": {
+              "href": "http://localhost/measurements"
+            }
+          }
+        }
