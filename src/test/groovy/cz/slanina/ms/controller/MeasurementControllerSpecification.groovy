@@ -156,6 +156,37 @@ class MeasurementControllerSpecification extends Specification {
         repository.deleteById(1)
     }
 
+    def "empty streak"() {
+        when:
+        mvc.perform(get("/measurements/streak")
+                .param("min", "10")
+                .param("max", "20"))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+
+        then:
+        repository.findLongestInterval(10, 20) >> []
+    }
+
+    def "get streak"() {
+        given:
+        def streak = Mock(MeasurementsRepository.Streak)
+
+        when:
+        mvc.perform(get("/measurements/streak")
+                .param("min", "10")
+                .param("max", "20"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath('$.start').value("2020-01-01T02:00:00Z"))
+                .andExpect(jsonPath('$.end').value("2020-01-01T03:00:00Z"))
+
+        then:
+        repository.findLongestInterval(10, 20) >> [streak]
+        streak.getStartAsOffsetDateTime() >> OffsetDateTime.of(2020, 1, 1, 2, 0, 0, 0, ZoneOffset.UTC)
+        streak.getEndAsOffsetDateTime() >> OffsetDateTime.of(2020, 1, 1, 3, 0, 0, 0, ZoneOffset.UTC)
+    }
+
     @SuppressWarnings("unused")
     @TestConfiguration
     static class MockConfig {

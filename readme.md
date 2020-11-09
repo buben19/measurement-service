@@ -4,7 +4,7 @@ Simple measurement service allowing user to save and retrieve measurements and f
 
 ## Run application
 
-To run application simply run:
+To run application execute commands:
 
     ./mwn package
     docker-compose up
@@ -15,14 +15,14 @@ Application uses following technologies:
 
   * Spring Boot, Hibernate, REST HATEOAS API.
   * PostgreSQL as backend database server.
-  * Spock framework.
+  * Spock framework for tests.
   * Prometheus monitoring system.
   * Grafana web server to view metrics.
   * Pgadmin4.
 
 ## Services
 
-After docker server is up and running, you can access following services.
+After docker is up and running, you can access following services.
 
   * [REST API](http://localhost:8081/measurements)
   * [Pgadmin](http://localhost:5050)

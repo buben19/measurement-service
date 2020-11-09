@@ -1,6 +1,7 @@
 package cz.slanina.ms.controller;
 
 import cz.slanina.ms.model.Measurement;
+import cz.slanina.ms.model.Streak;
 import cz.slanina.ms.repository.MeasurementsRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,12 +93,19 @@ public class MeasurementController {
             @RequestParam(name = "max", required = true) double max,
             @RequestParam(name = "start", required = false) LocalTime start,
             @RequestParam(name = "end", required = false) LocalTime end) {
+
+        // TODO: Implement this.
+        // TODO: Use polymorphysm instead of if-else.
         if (ObjectUtils.allNotNull(start, end)) {
-
         } else {
-
         }
-
-        throw new UnsupportedOperationException();
+        List<MeasurementsRepository.Streak> intervals = this.repository.findLongestInterval(min, max);
+        if (intervals.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            MeasurementsRepository.Streak streak = intervals.get(0);
+            Streak resource = new Streak(streak.getStartAsOffsetDateTime(), streak.getEndAsOffsetDateTime());
+            return ResponseEntity.ok().body(resource);
+        }
     }
 }
