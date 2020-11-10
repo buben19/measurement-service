@@ -100,3 +100,40 @@ Get single measurement identified by *id*.
             }
           }
         }
+        
+### Update measurement [PUT]
+
+Update measurement identified by its *id*.
+
++ Response 204 (application/json)
+
+### Delete measurement [DELETE]
+
+Permanently delete measurement from database.
+
++ Response 204 (application/json)
+
+## Measurement streaks [/measurements/streak{?min}{?max}{?start}{?end}]
+
+### Get streak [GET]
+
+Get longest streak of measurements within given bounds. If *start* and *end* parameters
+are empty, eplication returns measurements within all day. Client can specify time period
+of the day using *start* and *end* paremets.
+
+Both *start* and *end* parameters must be set, if client desires to. Setting only one of 
+them will have no efect.
+
++ Parameters
+
+    + min (number) - Minimum temperature reading.
+    + max (number) - Maximum temperature reading.
+    + start (string) - Start of measurement reading.
+    + end (string) - End of measurement reading.
+
++ Response 200 (application/json)
+
+        {
+          "start": "2020-01-01",
+          "end":"2020-01-01"
+        }
