@@ -35,12 +35,13 @@ public interface MeasurementsRepository extends CrudRepository<Measurement, Long
             " ORDER BY 1 DESC", nativeQuery = true)
     List<Streak> findLongestInterval(double min, double max);
 
+    // TODO: Implement this method.
     @Nonnull
     @Query(value = "WITH" +
             " dates(date) AS (" +
             "SELECT DISTINCT CAST(timestamp AS DATE) AS date" +
             " FROM measurements" +
-            " WHERE temperature BETWEEN :min AND :max" +
+            " WHERE temperature BETWEEN :min AND :max AND timestamp BETWEEN :start AND :end" +
             ")," +
             " groups AS (" +
             "SELECT" +
