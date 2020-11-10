@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import javax.annotation.Nonnull;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface MeasurementsRepository extends CrudRepository<Measurement, Long> {
@@ -34,8 +35,28 @@ public interface MeasurementsRepository extends CrudRepository<Measurement, Long
             " ORDER BY 1 DESC", nativeQuery = true)
     List<Streak> findLongestInterval(double min, double max);
 
-//    @Nonnull
-//    Optional<Interval> findLongestInterval(double min, double max, @Nonnull Interval interval);
+    @Nonnull
+    @Query(value = "WITH" +
+            " dates(date) AS (" +
+            "SELECT DISTINCT CAST(timestamp AS DATE) AS date" +
+            " FROM measurements" +
+            " WHERE temperature BETWEEN :min AND :max" +
+            ")," +
+            " groups AS (" +
+            "SELECT" +
+            " ROW_NUMBER() OVER (ORDER BY dates.date) AS rn," +
+            " DATEADD(day, -ROW_NUMBER() OVER (ORDER BY dates.date), dates.date) AS grp," +
+            " date" +
+            " FROM dates" +
+            ")" +
+            " SELECT" +
+              " COUNT(*) AS c," +
+              " MIN(groups.date) AS start," +
+              " MAX(groups.date) AS end" +
+            " FROM groups" +
+            " GROUP BY grp" +
+            " ORDER BY 1 DESC", nativeQuery = true)
+    List<Streak> findLongestInterval(double min, double max, LocalTime start, LocalTime end);
 
     /**
      * Spring JPA Projection interface.

@@ -5,6 +5,7 @@ import cz.slanina.ms.model.Streak;
 import cz.slanina.ms.repository.MeasurementsRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -91,15 +92,14 @@ public class MeasurementController {
     public ResponseEntity<?> streak(
             @RequestParam(name = "min", required = true) double min,
             @RequestParam(name = "max", required = true) double max,
-            @RequestParam(name = "start", required = false) LocalTime start,
-            @RequestParam(name = "end", required = false) LocalTime end) {
-
-        // TODO: Implement this.
-        // TODO: Use polymorphysm instead of if-else.
+            @RequestParam(name = "start", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime start,
+            @RequestParam(name = "end", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime end) {
+        List<MeasurementsRepository.Streak> intervals;
         if (ObjectUtils.allNotNull(start, end)) {
+            intervals = this.repository.findLongestInterval(min, max, start, end);
         } else {
+            intervals = this.repository.findLongestInterval(min, max);
         }
-        List<MeasurementsRepository.Streak> intervals = this.repository.findLongestInterval(min, max);
         if (intervals.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {

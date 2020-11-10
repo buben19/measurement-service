@@ -3,6 +3,7 @@ package cz.slanina.ms.repository
 import cz.slanina.ms.model.Measurement
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -92,5 +93,12 @@ class MeasurementsRepositorySpecification extends Specification {
         def head = intervals.head()
         head.getStartAsLocalDate() == LocalDate.of(2020, 1, 4)
         head.getEndAsLocalDate() == LocalDate.of(2020, 1, 6)
+    }
+
+    // TODO: Implement test.
+    @Ignore
+    def "get interval with time ranges"() {
+        expect:
+        false
     }
 }

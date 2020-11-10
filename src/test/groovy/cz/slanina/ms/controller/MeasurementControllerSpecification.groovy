@@ -15,6 +15,7 @@ import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -184,6 +185,27 @@ class MeasurementControllerSpecification extends Specification {
 
         then:
         repository.findLongestInterval(10, 20) >> [streak]
+        streak.getStartAsLocalDate() >> LocalDate.of(2020, 1, 1)
+        streak.getEndAsLocalDate() >> LocalDate.of(2020, 1, 1)
+    }
+
+    def "get streak with time ranges"() {
+        given:
+        def streak = Mock(MeasurementsRepository.Streak)
+
+        when:
+        mvc.perform(get("/measurements/streak")
+                .param("min", "10")
+                .param("max", "20")
+                .param("start", "11:00:00")
+                .param("end", "17:00:00"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath('$.start').value("2020-01-01"))
+                .andExpect(jsonPath('$.end').value("2020-01-01"))
+
+        then:
+        repository.findLongestInterval(10, 20, LocalTime.of(11, 0, 0), LocalTime.of(17, 0, 0)) >> [streak]
         streak.getStartAsLocalDate() >> LocalDate.of(2020, 1, 1)
         streak.getEndAsLocalDate() >> LocalDate.of(2020, 1, 1)
     }
