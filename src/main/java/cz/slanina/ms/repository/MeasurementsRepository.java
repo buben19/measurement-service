@@ -41,7 +41,8 @@ public interface MeasurementsRepository extends CrudRepository<Measurement, Long
             " dates(date) AS (" +
             "SELECT DISTINCT CAST(timestamp AS DATE) AS date" +
             " FROM measurements" +
-            " WHERE temperature BETWEEN :min AND :max AND timestamp BETWEEN :start AND :end" +
+            " WHERE temperature BETWEEN :min AND :max" +
+                " AND CAST(timestamp AS TIME) BETWEEN :start AND :end" +
             ")," +
             " groups AS (" +
             "SELECT" +
