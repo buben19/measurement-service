@@ -3,6 +3,7 @@ package cz.slanina.ms.controller;
 import cz.slanina.ms.model.Measurement;
 import cz.slanina.ms.model.Streak;
 import cz.slanina.ms.repository.MeasurementsRepository;
+import cz.slanina.ms.service.MeasurementService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -30,16 +32,16 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 public class MeasurementController {
 
-    private final MeasurementsRepository repository;
+    private final MeasurementService service;
 
     @Autowired
-    public MeasurementController(MeasurementsRepository repository) {
-        this.repository = repository;
+    public MeasurementController(MeasurementService service) {
+        this.service = service;
     }
 
     @GetMapping("/measurements")
     public ResponseEntity<CollectionModel<EntityModel<Measurement>>> getAll() {
-        List<EntityModel<Measurement>> measurements = StreamSupport.stream(this.repository.findAll().spliterator(), false)
+        List<EntityModel<Measurement>> measurements = StreamSupport.stream(this.service.getAll().spliterator(), false)
                 .map(measurement -> EntityModel.of(measurement,
                         linkTo(methodOn(MeasurementController.class).get(measurement.getId())).withSelfRel(),
                         linkTo(methodOn(MeasurementController.class).getAll()).withRel("measurements")))
@@ -49,7 +51,7 @@ public class MeasurementController {
 
     @GetMapping("/measurements/{id}")
     public ResponseEntity<EntityModel<Measurement>> get(@PathVariable Long id) {
-        return this.repository.findById(id)
+        return this.service.get(id)
                 .map(measurement -> EntityModel.of(measurement,
                         linkTo(methodOn(MeasurementController.class).get(measurement.getId())).withSelfRel(),
                         linkTo(methodOn(MeasurementController.class).getAll()).withRel("measurements")))
@@ -60,7 +62,7 @@ public class MeasurementController {
     @PostMapping("/measurements")
     public ResponseEntity<?> create(@RequestBody Measurement measurement) {
         try {
-            Measurement save = this.repository.save(measurement);
+            Measurement save = this.service.create(measurement);
             EntityModel<Measurement> of = EntityModel.of(save,
                     linkTo(methodOn(MeasurementController.class).get(save.getId())).withSelfRel());
             return ResponseEntity.created(new URI(of.getRequiredLink(IanaLinkRelations.SELF).getHref()))
@@ -73,7 +75,7 @@ public class MeasurementController {
     @PutMapping("/measurements/{id}")
     public ResponseEntity<?> update(@RequestBody Measurement measurement, @PathVariable Long id) {
         measurement.setId(id);
-        this.repository.save(measurement);
+        this.service.update(measurement);
         Link link = linkTo(methodOn(MeasurementController.class).get(id)).withSelfRel();
         try {
             return ResponseEntity.noContent().location(new URI(link.getHref())).build();
@@ -84,7 +86,7 @@ public class MeasurementController {
 
     @DeleteMapping("/measurements/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        this.repository.deleteById(id);
+        this.service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -94,18 +96,17 @@ public class MeasurementController {
             @RequestParam(name = "max", required = true) double max,
             @RequestParam(name = "start", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime start,
             @RequestParam(name = "end", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime end) {
-        List<MeasurementsRepository.Streak> intervals;
+        Optional<Streak> streakOptional;
         if (ObjectUtils.allNotNull(start, end)) {
-            intervals = this.repository.findLongestInterval(min, max, start, end);
+            streakOptional = this.service.findStreakWithTime(min, max, start, end);
         } else {
-            intervals = this.repository.findLongestInterval(min, max);
+            streakOptional = this.service.findStreak(min, max);
         }
-        if (intervals.isEmpty()) {
-            return ResponseEntity.noContent().build();
+        if (streakOptional.isPresent()) {
+            Streak streak = streakOptional.get();
+            return ResponseEntity.ok().body(streak);
         } else {
-            MeasurementsRepository.Streak streak = intervals.get(0);
-            Streak resource = new Streak(streak.getStartAsLocalDate(), streak.getEndAsLocalDate());
-            return ResponseEntity.ok().body(resource);
+            return ResponseEntity.noContent().build();
         }
     }
 }

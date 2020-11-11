@@ -2,7 +2,9 @@ package cz.slanina.ms.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import cz.slanina.ms.model.Measurement
+import cz.slanina.ms.model.Streak
 import cz.slanina.ms.repository.MeasurementsRepository
+import cz.slanina.ms.service.MeasurementService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -19,10 +21,7 @@ import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
@@ -33,15 +32,15 @@ class MeasurementControllerSpecification extends Specification {
     MockMvc mvc
 
     @Autowired
-    MeasurementsRepository repository
+    ObjectMapper objectMapper
 
     @Autowired
-    ObjectMapper objectMapper
+    MeasurementService service
 
     def "context loads"() {
         expect:
         mvc
-        repository
+        service
         objectMapper
     }
 
@@ -63,7 +62,7 @@ class MeasurementControllerSpecification extends Specification {
                 .andExpect(jsonPath('$._embedded.measurements[1]._links.measurements.href').value('http://localhost/measurements'))
 
         then:
-        repository.findAll() >> [
+        service.getAll() >> [
             new Measurement(
                     id: 1,
                     temperature: 10.0,
@@ -90,7 +89,7 @@ class MeasurementControllerSpecification extends Specification {
                 .andExpect(jsonPath('$._links.measurements.href').value('http://localhost/measurements'))
 
         then:
-        repository.findById(1) >> Optional.of(new Measurement(
+        service.get(1) >> Optional.of(new Measurement(
                 id: 1,
                 temperature: 10.0,
                 timestamp: OffsetDateTime.of(2020, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC)
@@ -118,7 +117,7 @@ class MeasurementControllerSpecification extends Specification {
                 .andExpect(jsonPath('$._links.self.href').value('http://localhost/measurements/1'))
 
         then:
-        repository.save(measurement) >> new Measurement(
+        service.create(measurement) >> new Measurement(
                 id: 1,
                 temperature: 10.0,
                 timestamp: OffsetDateTime.of(2020, 1, 1, 2, 0, 0, 0, ZoneOffset.UTC)
@@ -141,11 +140,11 @@ class MeasurementControllerSpecification extends Specification {
                 .andExpect(status().isNoContent())
 
         then:
-        repository.save(new Measurement(
+        service.update(new Measurement(
                 id: 1,
                 temperature: 20.0,
                 timestamp: OffsetDateTime.of(2020, 1, 1, 2, 0, 0, 0, ZoneOffset.UTC)
-        ))
+        )) >> measurement
     }
 
     def "delete measurement"() {
@@ -155,7 +154,7 @@ class MeasurementControllerSpecification extends Specification {
                 .andExpect(status().isNoContent())
 
         then:
-        repository.deleteById(1)
+        service.delete(1)
     }
 
     def "empty streak"() {
@@ -167,13 +166,10 @@ class MeasurementControllerSpecification extends Specification {
                 .andExpect(status().isNoContent())
 
         then:
-        repository.findLongestInterval(10, 20) >> []
+        service.findStreak(10, 20) >> Optional.empty()
     }
 
     def "get streak"() {
-        given:
-        def streak = Mock(MeasurementsRepository.Streak)
-
         when:
         mvc.perform(get("/measurements/streak")
                 .param("min", "10")
@@ -184,15 +180,13 @@ class MeasurementControllerSpecification extends Specification {
                 .andExpect(jsonPath('$.end').value("2020-01-01"))
 
         then:
-        repository.findLongestInterval(10, 20) >> [streak]
-        streak.getStartAsLocalDate() >> LocalDate.of(2020, 1, 1)
-        streak.getEndAsLocalDate() >> LocalDate.of(2020, 1, 1)
+        service.findStreak(10, 20) >> Optional.of(new Streak(
+                start: LocalDate.of(2020, 1, 1),
+                end: LocalDate.of(2020, 1, 1)
+        ))
     }
 
     def "get streak with time ranges"() {
-        given:
-        def streak = Mock(MeasurementsRepository.Streak)
-
         when:
         mvc.perform(get("/measurements/streak")
                 .param("min", "10")
@@ -205,9 +199,10 @@ class MeasurementControllerSpecification extends Specification {
                 .andExpect(jsonPath('$.end').value("2020-01-01"))
 
         then:
-        repository.findLongestInterval(10, 20, LocalTime.of(11, 0, 0), LocalTime.of(17, 0, 0)) >> [streak]
-        streak.getStartAsLocalDate() >> LocalDate.of(2020, 1, 1)
-        streak.getEndAsLocalDate() >> LocalDate.of(2020, 1, 1)
+        service.findStreakWithTime(10, 20, LocalTime.of(11, 0, 0), LocalTime.of(17, 0, 0)) >> Optional.of(new Streak(
+                start: LocalDate.of(2020, 1, 1),
+                end: LocalDate.of(2020, 1, 1)
+        ))
     }
 
     @SuppressWarnings("unused")
@@ -216,8 +211,8 @@ class MeasurementControllerSpecification extends Specification {
         def detachedMockFactory = new DetachedMockFactory()
 
         @Bean
-        MeasurementsRepository measurementsRepository() {
-            return detachedMockFactory.Stub(MeasurementsRepository)
+        MeasurementService measurementService() {
+            return detachedMockFactory.Mock(MeasurementService)
         }
     }
 }
